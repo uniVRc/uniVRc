@@ -77,7 +77,7 @@ def collect_files():
             if "__pycache__" in root:
                 continue
             for fn in filenames:
-                if fn.endswith((".pyc", ".lark")):
+                if fn.endswith(".pyc"):
                     continue
                 rel_path = os.path.relpath(os.path.join(root, fn), BASE_DIR)
                 files.append(rel_path)
