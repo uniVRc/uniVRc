@@ -13,17 +13,26 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 def setup_paths(workspace_dir=None):
     candidates = []
     if workspace_dir:
-        candidates.append(os.path.join(workspace_dir, "anti-HLS"))
+        candidates.append(os.path.join(workspace_dir, "HLS", "univrc-hls", "src"))
+        candidates.append(os.path.join(workspace_dir, "HLS", "univrc-hls"))
+        candidates.append(os.path.join(workspace_dir, "univrc-hls", "src"))
+        candidates.append(os.path.join(workspace_dir, "univrc-hls"))
         candidates.append(workspace_dir)
     
     # Try looking in parent directories
     parent = os.path.dirname(SCRIPT_DIR)
     while parent and os.path.splitdrive(parent)[1] not in ("\\", "/"):
-        candidates.append(os.path.join(parent, "anti-HLS"))
+        candidates.append(os.path.join(parent, "HLS", "univrc-hls", "src"))
+        candidates.append(os.path.join(parent, "HLS", "univrc-hls"))
+        candidates.append(os.path.join(parent, "univrc-hls", "src"))
+        candidates.append(os.path.join(parent, "univrc-hls"))
         candidates.append(parent)
         parent = os.path.dirname(parent)
 
-    candidates.append("D:/UT.CE/CAD/anti-HLS")
+    candidates.append("D:/UT.CE/CAD/univrc/HLS/univrc-hls/src")
+    candidates.append("D:/UT.CE/CAD/univrc/HLS/univrc-hls")
+    candidates.append("/mnt/d/UT.CE/CAD/univrc/HLS/univrc-hls/src")
+    candidates.append("/mnt/d/UT.CE/CAD/univrc/HLS/univrc-hls")
 
     for cand in candidates:
         if os.path.isdir(cand) and cand not in sys.path:

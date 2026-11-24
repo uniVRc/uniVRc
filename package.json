@@ -1,12 +1,16 @@
 {
   "name": "univrc",
   "displayName": "uniVRc IntelliSense",
-  "description": "Official uniVRc IntelliSense: Real-time Lark syntax diagnostics, syntax highlighting, file icons, and snippets for uniVRc (.vr) HLS language.",
-  "version": "0.3.1",
+  "description": "Official uniVRc IntelliSense: Real-time ANTLR4 syntax diagnostics, syntax highlighting, file icons, and snippets for the uniVRc (.vr) language.",
+  "version": "0.4.0",
   "publisher": "univrc",
   "engines": {
     "vscode": "^1.60.0"
   },
+  "extensionKind": [
+    "workspace",
+    "ui"
+  ],
   "categories": [
     "Programming Languages",
     "Linters",
@@ -15,11 +19,10 @@
   "keywords": [
     "univrc",
     "vr",
-    "hls",
-    "verilog",
     "hardware",
     "synthesis",
-    "linter"
+    "linter",
+    "antlr4"
   ],
   "repository": {
     "type": "git",
@@ -40,8 +43,7 @@
         "id": "univrc",
         "aliases": [
           "uniVRc",
-          "univrc",
-          "pseudo-uniVRc"
+          "univrc"
         ],
         "extensions": [
           ".vr",
@@ -109,12 +111,12 @@
         "univrc.enableSyntaxAnalysis": {
           "type": "boolean",
           "default": true,
-          "description": "Enable real-time Lark syntax analysis and error squiggles for .vr files."
+          "description": "Enable real-time ANTLR4 syntax analysis and error squiggles for .vr files."
         },
         "univrc.pythonPath": {
           "type": "string",
           "default": "python",
-          "description": "Path to the Python interpreter with Lark installed."
+          "description": "Path to the Python interpreter with antlr4-python3-runtime installed."
         }
       }
     }

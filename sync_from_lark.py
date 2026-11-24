@@ -11,10 +11,14 @@ import argparse
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 WORKSPACE_ROOT = os.path.dirname(SCRIPT_DIR)
-LARK_FILE = os.path.join(WORKSPACE_ROOT, "anti-HLS", "frontend", "univrc-hls.lark")
+LARK_FILE = os.path.join(WORKSPACE_ROOT, "anti-hls", "frontend", "univrc-hls.lark")
+if not os.path.exists(LARK_FILE):
+    LARK_FILE = os.path.join(WORKSPACE_ROOT, "anti-HLS", "frontend", "univrc-hls.lark")
 if not os.path.exists(LARK_FILE):
     LARK_FILE = os.path.join(WORKSPACE_ROOT, "anti-HLS", "frontend", "pseudo_univrc.lark")
-FULL_LARK_FILE = os.path.join(WORKSPACE_ROOT, "univrc-full.lark")
+FULL_LARK_FILE = os.path.join(WORKSPACE_ROOT, "univrc.lark")
+if not os.path.exists(FULL_LARK_FILE):
+    FULL_LARK_FILE = os.path.join(WORKSPACE_ROOT, "univrc-full.lark")
 TMLANG_FILE = os.path.join(SCRIPT_DIR, "syntaxes", "univrc.tmLanguage.json")
 PACKAGE_JSON_FILE = os.path.join(SCRIPT_DIR, "package.json")
 BUILD_VSIX_FILE = os.path.join(SCRIPT_DIR, "build_vsix.py")

@@ -1,5 +1,5 @@
 """uniVRc Syntax Analyzer / Diagnostics Server for VS Code.
-Parses uniVRc (.vr) source code using Lark and returns JSON-formatted diagnostics.
+Parses uniVRc (.vr) source code using ANTLR4 and returns JSON-formatted diagnostics.
 """
 
 import sys
@@ -8,140 +8,102 @@ import json
 import argparse
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-FALLBACK_GRAMMAR_FILE = os.path.join(SCRIPT_DIR, "univrc-hls.lark")
-if not os.path.exists(FALLBACK_GRAMMAR_FILE):
-    FALLBACK_GRAMMAR_FILE = os.path.join(SCRIPT_DIR, "grammar.lark")
 
 
-def resolve_grammar(workspace_dir=None):
-    """Finds the grammar from anti-HLS frontend if available, else uses bundled grammar."""
+def setup_paths(workspace_dir=None):
     candidates = []
     if workspace_dir:
-        candidates.append(os.path.join(workspace_dir, "anti-HLS"))
-        candidates.append(os.path.join(workspace_dir, "frontend"))
-    
+        candidates.append(os.path.join(workspace_dir, "HLS", "univrc-hls", "src"))
+        candidates.append(os.path.join(workspace_dir, "HLS", "univrc-hls"))
+        candidates.append(os.path.join(workspace_dir, "univrc-hls", "src"))
+        candidates.append(os.path.join(workspace_dir, "univrc-hls"))
+        candidates.append(workspace_dir)
+
     # Try looking in parent dirs
     parent = os.path.dirname(SCRIPT_DIR)
     while parent and os.path.splitdrive(parent)[1] not in ("\\", "/"):
-        candidates.append(os.path.join(parent, "anti-HLS"))
-        candidates.append(os.path.join(parent, "CAD", "anti-HLS"))
+        candidates.append(os.path.join(parent, "HLS", "univrc-hls", "src"))
+        candidates.append(os.path.join(parent, "HLS", "univrc-hls"))
+        candidates.append(os.path.join(parent, "univrc-hls", "src"))
+        candidates.append(os.path.join(parent, "univrc-hls"))
         parent = os.path.dirname(parent)
 
-    # Hardcoded known path
-    candidates.append("D:/UT.CE/CAD/anti-HLS")
+    candidates.append("D:/UT.CE/CAD/univrc/HLS/univrc-hls/src")
+    candidates.append("D:/UT.CE/CAD/univrc/HLS/univrc-hls")
+    candidates.append("/mnt/d/UT.CE/CAD/univrc/HLS/univrc-hls/src")
+    candidates.append("/mnt/d/UT.CE/CAD/univrc/HLS/univrc-hls")
 
     for cand in candidates:
         if os.path.isdir(cand) and cand not in sys.path:
             sys.path.insert(0, cand)
 
-    try:
-        from frontend.grammar import get_grammar
-        return get_grammar("hls")
-    except Exception:
-        pass
-
-    if os.path.exists(FALLBACK_GRAMMAR_FILE):
-        with open(FALLBACK_GRAMMAR_FILE, "r", encoding="utf-8") as f:
-            return f.read()
-
-    raise RuntimeError("Cannot locate uniVRc grammar file.")
-
 
 def analyze_code(source_code: str, workspace_dir=None):
-    """Analyzes source code and returns a list of diagnostic dictionaries."""
+    """Analyzes source code using ANTLR4 and returns a list of diagnostic dictionaries."""
     diagnostics = []
     if not source_code.strip():
         return diagnostics
 
+    setup_paths(workspace_dir)
+
     try:
-        from lark import Lark
-        from lark.exceptions import (
-            UnexpectedToken, UnexpectedCharacters, UnexpectedEOF,
-            VisitError, LarkError
-        )
+        from antlr4 import InputStream, CommonTokenStream
+        from antlr4.error.ErrorListener import ErrorListener
+        try:
+            from frontend.antlr_gen.UniVRcLexer import UniVRcLexer
+            from frontend.antlr_gen.UniVRcParser import UniVRcParser
+            from frontend.antlr_visitor import UniVRcASTVisitor
+        except ImportError:
+            from src.frontend.antlr_gen.UniVRcLexer import UniVRcLexer
+            from src.frontend.antlr_gen.UniVRcParser import UniVRcParser
+            from src.frontend.antlr_visitor import UniVRcASTVisitor
     except ImportError as err:
         return [{
             "line": 1,
             "column": 1,
             "endLine": 1,
             "endColumn": 1,
-            "message": f"Python dependency 'lark' import error: {str(err)}",
+            "message": f"ANTLR4 dependency import error: {str(err)}",
             "severity": "warning"
         }]
 
-    try:
-        grammar_text = resolve_grammar(workspace_dir)
-        parser = Lark(grammar_text, parser="earley", propagate_positions=True)
-    except Exception as e:
-        return [{
-            "line": 1,
-            "column": 1,
-            "endLine": 1,
-            "endColumn": 1,
-            "message": f"Grammar Loader Error: {str(e)}",
-            "severity": "error"
-        }]
+    class DiagnosticListener(ErrorListener):
+        def __init__(self):
+            super().__init__()
+            self.errors = []
+
+        def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
+            length = len(offendingSymbol.text) if offendingSymbol and offendingSymbol.text else 1
+            self.errors.append({
+                "line": line,
+                "column": column + 1,
+                "endLine": line,
+                "endColumn": column + 1 + length,
+                "message": f"Syntax Error: {msg}",
+                "severity": "error"
+            })
 
     try:
-        tree = parser.parse(source_code)
-        
-        # Try AST transformation if available for semantic checks
-        try:
-            from frontend.parser import PseudoVRTransformer
-            transformer = PseudoVRTransformer()
-            transformer.transform(tree)
-        except Exception:
-            # If transformer has non-critical differences, ignore or catch
-            pass
+        input_stream = InputStream(source_code)
+        lexer = UniVRcLexer(input_stream)
+        lexer_listener = DiagnosticListener()
+        lexer.removeErrorListeners()
+        lexer.addErrorListener(lexer_listener)
 
-    except UnexpectedToken as e:
-        tok_val = getattr(e.token, "value", "")
-        line = getattr(e, "line", 1) or 1
-        col = getattr(e, "column", 1) or 1
-        end_line = getattr(e, "end_line", line) or line
-        end_col = getattr(e, "end_column", col + max(1, len(tok_val))) or (col + 1)
-        
-        expected = ""
-        if hasattr(e, "expected") and e.expected:
-            exp_list = sorted(list(e.expected))[:6]
-            expected = f" (Expected: {', '.join(exp_list)})"
+        token_stream = CommonTokenStream(lexer)
+        parser = UniVRcParser(token_stream)
+        parser_listener = DiagnosticListener()
+        parser.removeErrorListeners()
+        parser.addErrorListener(parser_listener)
 
-        diagnostics.append({
-            "line": line,
-            "column": col,
-            "endLine": end_line,
-            "endColumn": end_col,
-            "message": f"Syntax Error: Unexpected token {tok_val!r}{expected}",
-            "severity": "error"
-        })
+        tree = parser.program()
 
-    except UnexpectedCharacters as e:
-        line = getattr(e, "line", 1) or 1
-        col = getattr(e, "column", 1) or 1
-        end_line = getattr(e, "end_line", line) or line
-        end_col = getattr(e, "end_column", col + 1) or (col + 1)
-        
-        diagnostics.append({
-            "line": line,
-            "column": col,
-            "endLine": end_line,
-            "endColumn": end_col,
-            "message": f"Syntax Error: Unexpected character {getattr(e, 'char', '?')!r}",
-            "severity": "error"
-        })
+        diagnostics.extend(lexer_listener.errors)
+        diagnostics.extend(parser_listener.errors)
 
-    except UnexpectedEOF as e:
-        line = getattr(e, "line", 1) or 1
-        col = getattr(e, "column", 1) or 1
-        
-        diagnostics.append({
-            "line": line,
-            "column": col,
-            "endLine": line,
-            "endColumn": col + 1,
-            "message": "Syntax Error: Unexpected end of file",
-            "severity": "error"
-        })
+        if not diagnostics:
+            visitor = UniVRcASTVisitor()
+            visitor.visit(tree)
 
     except Exception as e:
         diagnostics.append({
@@ -174,7 +136,6 @@ def main():
             print(json.dumps([{"line": 1, "column": 1, "endLine": 1, "endColumn": 1, "message": f"File not found: {args.file}", "severity": "error"}]))
             return
     else:
-        # Default read stdin if available
         if not sys.stdin.isatty():
             source = sys.stdin.read()
 
