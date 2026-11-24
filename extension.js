@@ -13,166 +13,166 @@ let currentVisualizerPanel = null;
 const HOVER_DOCS = {
     // --- Pragmas & Directives ---
     '@MODULE': {
-        title: '📦 @MODULE — Hardware Entity / Top-Level IP',
+        title: '@MODULE — Hardware Entity / Top-Level IP',
         desc: 'Defines a synthesizable hardware entity or submodule with ports and generics. Corresponds to a Verilog/SystemVerilog `module`.',
         example: '@MODULE\n@PARAM(DATA_WIDTH = 32)\nMyFilter(in unsigned<32> clk, in bool rst_n, out unsigned<32> data_out) { ... }'
     },
     '@PARAM': {
-        title: '⚙️ @PARAM — Hardware Generics & Parameters',
+        title: '@PARAM — Hardware Generics & Parameters',
         desc: 'Declares synthesis-time hardware parameters (bit-widths, buffer depths, tap counts). Can have default values.',
         example: '@PARAM(DATA_WIDTH = 32, FIFO_DEPTH = 16, TAPS = 8)'
     },
     '@THREAD': {
-        title: '⚡ @THREAD — Concurrent Process / Process Kernel',
+        title: '@THREAD — Concurrent Process / Process Kernel',
         desc: 'Declares a concurrent hardware execution block. When combined with `@WHEN` and `@RESET`, synthesizes to a clocked synchronous process.',
         example: '@WHEN(posedge clk) @RESET(rst_n) @THREAD\nvoid state_update() { ... }'
     },
     '@WHEN': {
-        title: '⏱️ @WHEN — Sensitivity & Clock Edge Causality',
+        title: '@WHEN — Sensitivity & Clock Edge Causality',
         desc: 'Specifies the triggering event / clock sensitivity for a thread. Supports `posedge` and `negedge` qualifiers.',
         example: '@WHEN(posedge clk) @RESET(rst_n) @THREAD'
     },
     '@RESET': {
-        title: '🔄 @RESET — Hardware Reset Signal',
+        title: '@RESET — Hardware Reset Signal',
         desc: 'Defines the reset line and polarity for sequential state registers in a `@THREAD`.',
         example: '@RESET(rst_n) // Evaluates !rst_n as active-low reset'
     },
     '@FUNC': {
-        title: '🧩 @FUNC — Pure Algorithmic Function',
+        title: '@FUNC — Pure Algorithmic Function',
         desc: 'Defines a synthesizable algorithmic function. Can be synthesized into a scheduled datapath or inlined into caller logic.',
         example: '@FUNC\nunsigned<32> mac(unsigned<32> a, unsigned<32> b, unsigned<32> c) {\n    return a * b + c;\n}'
     },
     '@PIPE': {
-        title: '🚀 @PIPE — Loop Pipelining Pragma',
+        title: '@PIPE — Loop Pipelining Pragma',
         desc: 'Enables fine-grained loop pipelining with target Initiation Interval (`II`). `II=1` means a new loop iteration starts every single clock cycle.',
         example: 'for (int i = 0; i < N; i++) {\n    @PIPE(II=1)\n    sum = sum + arr[i];\n}'
     },
     '@UNROLL': {
-        title: '🔀 @UNROLL — Loop Unrolling Pragma',
+        title: '@UNROLL — Loop Unrolling Pragma',
         desc: 'Unrolls loop iterations into parallel spatial hardware compute units. `factor=N` replicates datapath hardware N times.',
         example: '@UNROLL(factor=4)\nfor (int i = 0; i < 16; i++) { ... }'
     },
     '@TRIPCOUNT': {
-        title: '📊 @TRIPCOUNT — Loop Iteration Bounds',
+        title: '@TRIPCOUNT — Loop Iteration Bounds',
         desc: 'Informs the HLS scheduler about execution bounds (`min`, `max`, `avg`) for static scheduling, latency estimation, and resource allocation.',
         example: '@TRIPCOUNT(min=8, max=64, avg=32)'
     },
     '@PARTITION': {
-        title: '💾 @PARTITION — Multi-Bank Memory Partitioning',
+        title: '@PARTITION — Multi-Bank Memory Partitioning',
         desc: 'Partitions an array into multiple independent physical RAM banks or registers to eliminate multi-port access memory stalls.\n- `cyclic`: Alternates elements cyclically across banks.\n- `block`: Splits contiguous chunks into banks.\n- `complete`: Decomposes array into discrete registers.',
         example: '@PARTITION(type="cyclic", factor=4, dim=1)\nunsigned<32> buffer[16];'
     },
     '@MEM': {
-        title: '🗄️ @MEM — Dedicated RAM Storage Binding',
+        title: '@MEM — Dedicated RAM Storage Binding',
         desc: 'Specifies physical memory architecture attributes: port count (1 or 2), number of banks, and read latency in cycles.',
         example: '@MEM(ports=2, banks=4, latency=1)\nunsigned<32> coefficient_rom[8];'
     },
     '@REG': {
-        title: '📌 @REG — Explicit State Register Allocation',
+        title: '@REG — Explicit State Register Allocation',
         desc: 'Forces the HLS compiler to bind the variable to a hardware flip-flop register instead of transient combinational wire.',
         example: '@REG unsigned<32> delay_pipe[4];'
     },
     '@BIND_OP': {
-        title: '🎯 @BIND_OP — Arithmetic Resource Core Binding',
+        title: '@BIND_OP — Arithmetic Resource Core Binding',
         desc: 'Binds arithmetic operations to specific silicon hardware cores (e.g. `dsp` vs `fabric` LUTs).',
         example: '@BIND_OP(op="mul", impl="dsp")\nunsigned<32> prod = a * b;'
     },
     '@BIND_STORAGE': {
-        title: '🏛️ @BIND_STORAGE — Memory Primitive Core Binding',
+        title: '@BIND_STORAGE — Memory Primitive Core Binding',
         desc: 'Binds arrays to specific memory blocks (`bram`, `uram`, `lutram`).',
         example: '@BIND_STORAGE(type="ram_2p", impl="bram")\nint memory_table[1024];'
     },
     '@INTERFACE': {
-        title: '🔌 @INTERFACE — Hardware Bus Interface Protocol',
+        title: '@INTERFACE — Hardware Bus Interface Protocol',
         desc: 'Synthesizes ports into standard hardware protocols: `s_axilite` (memory-mapped registers), `axis` (streaming with valid/ready), `ap_none`, `m_axi`.',
         example: '@INTERFACE(mode="axis") in unsigned<32> in_data'
     },
     '@DEPENDENCE': {
-        title: '🛡️ @DEPENDENCE — Memory Disambiguation Hint',
+        title: '@DEPENDENCE — Memory Disambiguation Hint',
         desc: 'Instructs the HLS scheduler to ignore false loop dependencies (e.g. RAW/WAR hazards across array indices).',
         example: '@DEPENDENCE(variable="tap_delay_line", type="inter", direction="RAW", false=true)'
     },
     '@LOOP_FLATTEN': {
-        title: '📐 @LOOP_FLATTEN — Nested Loop Flattening',
+        title: '@LOOP_FLATTEN — Nested Loop Flattening',
         desc: 'Flattens nested multi-dimensional loops into a single pipelined loop without cycle penalties between iterations.',
         example: '@LOOP_FLATTEN\nfor (int i = 0; i < R; i++)\n    for (int j = 0; j < C; j++) { ... }'
     },
     '@DATAFLOW': {
-        title: '🌊 @DATAFLOW — Task-Level Pipelining',
+        title: '@DATAFLOW — Task-Level Pipelining',
         desc: 'Enables task-level concurrency across sequential kernels connected via FIFO or streaming channels.',
         example: '@DATAFLOW\nkernel_producer();\nkernel_consumer();'
     },
     '@INLINE': {
-        title: '✂️ @INLINE — Function Boundary Inlining',
+        title: '@INLINE — Function Boundary Inlining',
         desc: 'Inlines function logic directly into the caller module to eliminate call overhead and optimize cross-boundary logic.',
         example: '@FUNC\n@INLINE\nunsigned<32> fast_clamp(...) { ... }'
     },
     '@TESTBENCH': {
-        title: '🧪 @TESTBENCH — Simulation Testbench Environment',
+        title: '@TESTBENCH — Simulation Testbench Environment',
         desc: 'Declares an untimed or cycle-based simulation testbench block for functional verification.',
         example: '@TESTBENCH\nFilterTB() {\n    // Stimulus and clock generation\n}'
     },
 
     // --- Types ---
     'unsigned': {
-        title: '🔢 unsigned<W> — Bit-Exact Unsigned Integer',
+        title: 'unsigned<W> — Bit-Exact Unsigned Integer',
         desc: 'Synthesizes an unsigned integer with exact hardware bit-width `W` (e.g. `unsigned<12>` creates a 12-bit bus).',
         example: 'unsigned<32> data_word = 32\'hFFFF;'
     },
     'signed': {
-        title: '🔢 signed<W> — Bit-Exact Two’s Complement Signed Integer',
+        title: 'signed<W> — Bit-Exact Two’s Complement Signed Integer',
         desc: 'Synthesizes a signed integer with exact hardware bit-width `W` using standard two\'s complement arithmetic.',
         example: 'signed<16> delta = -10;'
     },
     'fxp': {
-        title: '🎯 fxp<W, F> — Bit-Exact Fixed-Point Number',
+        title: 'fxp<W, F> — Bit-Exact Fixed-Point Number',
         desc: 'Hardware fixed-point arithmetic type with `W` total bits and `F` fractional bits. Ideal for DSP filters, neural networks, and matrix computation.',
         example: 'fxp<16, 8> coeff = 1.25; // 8 integer bits, 8 fractional bits'
     },
     'wire': {
-        title: '〰️ wire<W> — Combinational Continuous Signal',
+        title: 'wire<W> — Combinational Continuous Signal',
         desc: 'Continuous combinational wire evaluated immediately without flip-flop clock latency.',
         example: 'wire<32> clamped = data_in & 32\'h00FF;'
     },
     'reg': {
-        title: '💾 reg — State Register Variable',
+        title: 'reg — State Register Variable',
         desc: 'Flip-flop register inferred for sequential state retention across clock cycles.',
         example: 'reg clk_div = 1\'b0;'
     },
     'stream': {
-        title: '🌊 stream<Type, Depth> — AXI / Handshake Streaming Channel',
+        title: 'stream<Type, Depth> — AXI / Handshake Streaming Channel',
         desc: 'Point-to-point streaming channel supporting non-blocking or blocking reads and writes with hardware FIFO flow control.',
         example: 'stream<unsigned<32>, 16> sample_stream;'
     },
     'fifo': {
-        title: '📥 fifo<Type, Depth> — Hardware FIFO Buffer',
+        title: 'fifo<Type, Depth> — Hardware FIFO Buffer',
         desc: 'Hardware First-In-First-Out circular buffer queue with programmable depth.',
         example: 'fifo<unsigned<32>, 8> output_fifo;'
     },
 
     // --- Operators ---
     ':=': {
-        title: '⚡ := — Sequential Non-Blocking Register Assignment',
+        title: ':= — Sequential Non-Blocking Register Assignment',
         desc: 'Updates the target state register on the next clock trigger (equivalent to Verilog non-blocking assignment `<=`).',
         example: 'tap_delay_line[0] := new_sample;'
     },
     '=': {
-        title: '🔗 = — Combinational Blocking Assignment',
+        title: '= — Combinational Blocking Assignment',
         desc: 'Evaluates and assigns the expression immediately in combinational logic.',
         example: 'unsigned<32> acc = a + b;'
     },
     '+:': {
-        title: '✂️ +: — Part-Select Plus Slice Operator',
+        title: '+: — Part-Select Plus Slice Operator',
         desc: 'Dynamic bit slice: `signal[base +: width]` extracts `width` bits starting from index `base`.',
         example: 'acc[0 +: 16] // selects bits 0 to 15'
     },
     '-:': {
-        title: '✂️ -: — Part-Select Minus Slice Operator',
+        title: '-: — Part-Select Minus Slice Operator',
         desc: 'Dynamic bit slice: `signal[base -: width]` extracts `width` bits decrementing from index `base`.',
         example: 'acc[31 -: 8] // selects bits 31 down to 24'
     },
     '<$': {
-        title: '🔗 $ — Hardware Bit Concatenation & Replication',
+        title: '$ — Hardware Bit Concatenation & Replication',
         desc: 'Concatenates multiple bit signals into a single vector `${a, b}` or replicates bits `${4{1\'b0}}`.',
         example: 'wire<16> bus = ${msb[7:0], lsb[7:0]};'
     }
