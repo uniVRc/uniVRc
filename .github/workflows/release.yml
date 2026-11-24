@@ -31,18 +31,10 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
-        run: |
-          pip install lark pillow
-
-      - name: Sync Grammar & Build VSIX
+      - name: Build VSIX Package
         id: build_vsix
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            python sync_from_lark.py --bump ${{ github.event.inputs.bump_type }}
-          else
-            python sync_from_lark.py
-          fi
+          python build_vsix.py
           VSIX_FILE=$(ls *.vsix | head -n 1)
           echo "VSIX_PATH=$VSIX_FILE" >> $GITHUB_ENV
           echo "Found VSIX: $VSIX_FILE"

@@ -26,12 +26,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Mohammad-Khoshroo/uniVRc"
+    "url": "https://github.com/uniVRc/uniVRc.git"
   },
   "bugs": {
-    "url": "https://github.com/Mohammad-Khoshroo/uniVRc/issues"
+    "url": "https://github.com/uniVRc/uniVRc/issues"
   },
-  "homepage": "https://github.com/Mohammad-Khoshroo/uniVRc#readme",
+  "homepage": "https://github.com/uniVRc/uniVRc#readme",
   "main": "./extension.js",
   "activationEvents": [
     "onLanguage:univrc"
