@@ -1,4 +1,4 @@
-# Generated from /mnt/d/UT.CE/CAD/univrc/HLS/univrc-hls/src/frontend/UniVRc.g4 by ANTLR 4.13.2
+# Generated from univrc/DSL/UniVRc.g4 by ANTLR 4.13.2
 from antlr4 import *
 if "." in __name__:
     from .UniVRcParser import UniVRcParser
@@ -76,6 +76,31 @@ class UniVRcVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by UniVRcParser#instStmt.
     def visitInstStmt(self, ctx:UniVRcParser.InstStmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by UniVRcParser#paramOverrideClause.
+    def visitParamOverrideClause(self, ctx:UniVRcParser.ParamOverrideClauseContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by UniVRcParser#paramOverrideList.
+    def visitParamOverrideList(self, ctx:UniVRcParser.ParamOverrideListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by UniVRcParser#NamedParamOverride.
+    def visitNamedParamOverride(self, ctx:UniVRcParser.NamedParamOverrideContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by UniVRcParser#AssignParamOverride.
+    def visitAssignParamOverride(self, ctx:UniVRcParser.AssignParamOverrideContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by UniVRcParser#PositionalParamOverride.
+    def visitPositionalParamOverride(self, ctx:UniVRcParser.PositionalParamOverrideContext):
         return self.visitChildren(ctx)
 
 
@@ -159,8 +184,18 @@ class UniVRcVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by UniVRcParser#LValueConcat.
+    def visitLValueConcat(self, ctx:UniVRcParser.LValueConcatContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by UniVRcParser#LValueId.
     def visitLValueId(self, ctx:UniVRcParser.LValueIdContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by UniVRcParser#lvalueList.
+    def visitLvalueList(self, ctx:UniVRcParser.LvalueListContext):
         return self.visitChildren(ctx)
 
 
@@ -269,6 +304,21 @@ class UniVRcVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by UniVRcParser#interfaceDef.
+    def visitInterfaceDef(self, ctx:UniVRcParser.InterfaceDefContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by UniVRcParser#interfaceItem.
+    def visitInterfaceItem(self, ctx:UniVRcParser.InterfaceItemContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by UniVRcParser#generateStmt.
+    def visitGenerateStmt(self, ctx:UniVRcParser.GenerateStmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by UniVRcParser#paramSection.
     def visitParamSection(self, ctx:UniVRcParser.ParamSectionContext):
         return self.visitChildren(ctx)
@@ -304,18 +354,13 @@ class UniVRcVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by UniVRcParser#FuncDefWithAttr.
-    def visitFuncDefWithAttr(self, ctx:UniVRcParser.FuncDefWithAttrContext):
+    # Visit a parse tree produced by UniVRcParser#FuncDefPrefixType.
+    def visitFuncDefPrefixType(self, ctx:UniVRcParser.FuncDefPrefixTypeContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by UniVRcParser#FuncDefWithType.
-    def visitFuncDefWithType(self, ctx:UniVRcParser.FuncDefWithTypeContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by UniVRcParser#FuncDefStandard.
-    def visitFuncDefStandard(self, ctx:UniVRcParser.FuncDefStandardContext):
+    # Visit a parse tree produced by UniVRcParser#FuncDefPostfixType.
+    def visitFuncDefPostfixType(self, ctx:UniVRcParser.FuncDefPostfixTypeContext):
         return self.visitChildren(ctx)
 
 

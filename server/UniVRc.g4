@@ -19,6 +19,8 @@ statement
     | structDef
     | enumDef
     | typedefDef
+    | interfaceDef
+    | generateStmt
     | moduleDef
     | testbenchDef
     | funcDef
@@ -78,7 +80,21 @@ flowStmt
 
 // --- Hardware Instantiation ---
 instStmt
-    : id id LPAREN portConnections? RPAREN
+    : attr* id paramOverrideClause? id LPAREN portConnections? RPAREN
+    ;
+
+paramOverrideClause
+    : LT paramOverrideList GT
+    ;
+
+paramOverrideList
+    : paramOverride (COMMA paramOverride)*
+    ;
+
+paramOverride
+    : DOT id LPAREN expr RPAREN                          # NamedParamOverride
+    | id ASSIGN expr                                     # AssignParamOverride
+    | expr                                               # PositionalParamOverride
     ;
 
 portConnections
@@ -125,6 +141,11 @@ lvalue
     | lvalue LBRACK expr COLON expr COLON expr RBRACK   # LValueSliceStep
     | lvalue LBRACK expr (SLICE_PLUS | '+:') expr RBRACK  # LValueSlicePlus
     | lvalue LBRACK expr (SLICE_MINUS | '-:') expr RBRACK # LValueSliceMinus
+    | DOLLAR LBRACE lvalueList RBRACE                   # LValueConcat
+    ;
+
+lvalueList
+    : lvalue (COMMA lvalue)*
     ;
 
 // --- Declarations ---
@@ -181,6 +202,20 @@ typedefDef
     : TYPEDEF typeDesc id arrayDims SEMI
     ;
 
+// --- Interfaces & Generates ---
+interfaceDef
+    : attr* INTERFACE id (LT paramList? GT)? LBRACE interfaceItem* RBRACE SEMI?
+    ;
+
+interfaceItem
+    : attr* portDir attr* typeDesc id arrayDims (ASSIGN expr)? SEMI?
+    | varDecl SEMI?
+    ;
+
+generateStmt
+    : GENERATE (ifStmt | forStmt | block)
+    ;
+
 // --- Parameters & Modules ---
 paramSection
     : AT_PARAM LPAREN paramList? RPAREN
@@ -212,9 +247,8 @@ portDir
 
 // --- Functions & Threads ---
 funcDef
-    : attr+ paramSection? (typeDesc id | id) (LPAREN funcParams? RPAREN)? (COLON typeDesc)? block # FuncDefWithAttr
-    | attr* paramSection? typeDesc id (LPAREN funcParams? RPAREN)? (COLON typeDesc)? block         # FuncDefWithType
-    | attr* paramSection? id LPAREN funcParams? RPAREN (COLON typeDesc)? block                     # FuncDefStandard
+    : attr* paramSection? typeDesc id (LPAREN funcParams? RPAREN)? block                           # FuncDefPrefixType
+    | attr* paramSection? (VOID | FUNC)? id (LPAREN funcParams? RPAREN)? (COLON typeDesc)? block   # FuncDefPostfixType
     ;
 
 funcParams
@@ -413,6 +447,10 @@ id
     | MAX
     | ABS
     | PRINT_KW
+    | INTERFACE
+    | GENERATE
+    | VOID
+    | FUNC
     ;
 
 // ==========================================
@@ -460,6 +498,10 @@ FIFO: 'fifo';
 ASSERT: 'assert';
 DELAY: 'delay' | 'wait_cycles';
 IMPORT: 'import';
+INTERFACE: 'interface';
+GENERATE: 'generate';
+VOID: 'void';
+FUNC: 'func';
 
 TRUE: 'true';
 FALSE: 'false';

@@ -453,6 +453,29 @@ class TypedefDef(Statement):
 
 
 @dataclass
+class InterfaceItem(ASTNode):
+    direction: str = "in"
+    type_desc: Optional[TypeNode] = None
+    name: str = ""
+    array_dims: List[Expr] = field(default_factory=list)
+    default_val: Optional[Expr] = None
+    var_decl: Optional[Statement] = None
+
+
+@dataclass
+class InterfaceDef(Statement):
+    name: str = ""
+    generics: List[ParamDef] = field(default_factory=list)
+    items: List[InterfaceItem] = field(default_factory=list)
+    attributes: List[Attribute] = field(default_factory=list)
+
+
+@dataclass
+class GenerateStmt(Statement):
+    body: Any = None
+
+
+@dataclass
 class Program(ASTNode):
     statements: List[Statement] = field(default_factory=list)
 

@@ -18,7 +18,8 @@ try:
         ForStmt, WhileStmt, DoWhileStmt, RepeatStmt, AlwaysStmt, SensitivityItem,
         ThreadStmt, InstStmt, PortConn, PortDef, ParamDef, ModuleDef,
         FuncParamDef, FuncDef, StructField, StructDef, EnumEntry, EnumDef,
-        TypedefDef, StreamType, StringLit, AssertStmt, DelayStmt, TestbenchDef
+        TypedefDef, StreamType, StringLit, AssertStmt, DelayStmt, TestbenchDef,
+        InterfaceDef, InterfaceItem, GenerateStmt
     )
 except (ImportError, ValueError):
     from antlr_gen.UniVRcVisitor import UniVRcVisitor
@@ -35,7 +36,8 @@ except (ImportError, ValueError):
         ForStmt, WhileStmt, DoWhileStmt, RepeatStmt, AlwaysStmt, SensitivityItem,
         ThreadStmt, InstStmt, PortConn, PortDef, ParamDef, ModuleDef,
         FuncParamDef, FuncDef, StructField, StructDef, EnumEntry, EnumDef,
-        TypedefDef, StreamType, StringLit, AssertStmt, DelayStmt, TestbenchDef
+        TypedefDef, StreamType, StringLit, AssertStmt, DelayStmt, TestbenchDef,
+        InterfaceDef, InterfaceItem, GenerateStmt
     )
 
 
@@ -268,6 +270,10 @@ class UniVRcASTVisitor(UniVRcVisitor):
         width = self.visit(exprs[1])
         return SliceIndexed(base=base, index=idx, width=width, is_plus=False, loc=self._loc(ctx))
 
+    def visitLValueConcat(self, ctx: UniVRcParser.LValueConcatContext) -> ConcatExpr:
+        elements = [self.visit(lv) for lv in ctx.lvalueList().lvalue()]
+        return ConcatExpr(elements=elements, loc=self._loc(ctx))
+
     # =========================================================================
     # Declarations & Types
     # =========================================================================
@@ -401,27 +407,16 @@ class UniVRcASTVisitor(UniVRcVisitor):
         init = self.visit(ctx.expr()) if ctx.expr() else None
         return PortDef(direction=pdir, type_desc=ptype, name=name, array_dims=dims, default_val=init, loc=self._loc(ctx))
 
-    def visitFuncDefWithAttr(self, ctx: UniVRcParser.FuncDefWithAttrContext) -> FuncDef:
+    def visitFuncDefPrefixType(self, ctx: UniVRcParser.FuncDefPrefixTypeContext) -> FuncDef:
         attrs = [self.visit(a) for a in ctx.attr()]
         params_sec = self.visit(ctx.paramSection()) if ctx.paramSection() else []
-        types = ctx.typeDesc()
-        ret_type = self.visit(types[0]) if len(types) > 0 and ctx.COLON() is None else (self.visit(types[-1]) if ctx.COLON() else None)
+        ret_type = self.visit(ctx.typeDesc())
         name = ctx.id_().getText()
         func_params = self.visit(ctx.funcParams()) if ctx.funcParams() else []
         body = self.visit(ctx.block())
         return FuncDef(name=name, params=func_params, return_type=ret_type, body=body, params_section=params_sec, attributes=attrs, loc=self._loc(ctx))
 
-    def visitFuncDefWithType(self, ctx: UniVRcParser.FuncDefWithTypeContext) -> FuncDef:
-        attrs = [self.visit(a) for a in ctx.attr()]
-        params_sec = self.visit(ctx.paramSection()) if ctx.paramSection() else []
-        types = ctx.typeDesc()
-        ret_type = self.visit(types[0]) if len(types) > 0 else None
-        name = ctx.id_().getText()
-        func_params = self.visit(ctx.funcParams()) if ctx.funcParams() else []
-        body = self.visit(ctx.block())
-        return FuncDef(name=name, params=func_params, return_type=ret_type, body=body, params_section=params_sec, attributes=attrs, loc=self._loc(ctx))
-
-    def visitFuncDefStandard(self, ctx: UniVRcParser.FuncDefStandardContext) -> FuncDef:
+    def visitFuncDefPostfixType(self, ctx: UniVRcParser.FuncDefPostfixTypeContext) -> FuncDef:
         attrs = [self.visit(a) for a in ctx.attr()]
         params_sec = self.visit(ctx.paramSection()) if ctx.paramSection() else []
         ret_type = self.visit(ctx.typeDesc()) if ctx.typeDesc() else None
@@ -429,6 +424,28 @@ class UniVRcASTVisitor(UniVRcVisitor):
         func_params = self.visit(ctx.funcParams()) if ctx.funcParams() else []
         body = self.visit(ctx.block())
         return FuncDef(name=name, params=func_params, return_type=ret_type, body=body, params_section=params_sec, attributes=attrs, loc=self._loc(ctx))
+
+    def visitInterfaceDef(self, ctx: UniVRcParser.InterfaceDefContext) -> InterfaceDef:
+        attrs = [self.visit(a) for a in ctx.attr()]
+        name = ctx.id_().getText()
+        generics = self.visit(ctx.paramList()) if ctx.paramList() else []
+        items = [self.visit(item) for item in ctx.interfaceItem()]
+        return InterfaceDef(name=name, generics=generics, items=items, attributes=attrs, loc=self._loc(ctx))
+
+    def visitInterfaceItem(self, ctx: UniVRcParser.InterfaceItemContext) -> InterfaceItem:
+        if ctx.varDecl():
+            vd = self.visit(ctx.varDecl())
+            return InterfaceItem(var_decl=vd, loc=self._loc(ctx))
+        pdir = ctx.portDir().getText() if ctx.portDir() else None
+        ptype = self.visit(ctx.typeDesc()) if ctx.typeDesc() else None
+        name = ctx.id_().getText() if ctx.id_() else ""
+        dims = self.visit(ctx.arrayDims()) if ctx.arrayDims() else []
+        init = self.visit(ctx.expr()) if ctx.expr() else None
+        return InterfaceItem(direction=pdir, type_desc=ptype, name=name, array_dims=dims, default_val=init, loc=self._loc(ctx))
+
+    def visitGenerateStmt(self, ctx: UniVRcParser.GenerateStmtContext) -> GenerateStmt:
+        body = self.visitChildren(ctx)
+        return GenerateStmt(body=body, loc=self._loc(ctx))
 
     def visitFuncParams(self, ctx: UniVRcParser.FuncParamsContext) -> List[FuncParamDef]:
         return [self.visit(p) for p in ctx.funcParam()]
