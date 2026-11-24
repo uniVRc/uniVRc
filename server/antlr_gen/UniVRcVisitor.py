@@ -1,4 +1,4 @@
-# Generated from univrc/DSL/UniVRc.g4 by ANTLR 4.13.2
+# Generated from univrc/DSL/univrc-extension/server/UniVRc.g4 by ANTLR 4.13.2
 from antlr4 import *
 if "." in __name__:
     from .UniVRcParser import UniVRcParser
@@ -314,8 +314,8 @@ class UniVRcVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by UniVRcParser#generateStmt.
-    def visitGenerateStmt(self, ctx:UniVRcParser.GenerateStmtContext):
+    # Visit a parse tree produced by UniVRcParser#staticStmt.
+    def visitStaticStmt(self, ctx:UniVRcParser.StaticStmtContext):
         return self.visitChildren(ctx)
 
 

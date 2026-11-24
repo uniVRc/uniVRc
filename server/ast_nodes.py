@@ -471,8 +471,12 @@ class InterfaceDef(Statement):
 
 
 @dataclass
-class GenerateStmt(Statement):
+class StaticStmt(Statement):
     body: Any = None
+
+
+# Backward compatibility alias
+GenerateStmt = StaticStmt
 
 
 @dataclass

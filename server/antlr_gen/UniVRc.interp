@@ -42,7 +42,7 @@ null
 null
 'import'
 'interface'
-'generate'
+'static'
 'void'
 'func'
 'true'
@@ -162,7 +162,7 @@ ASSERT
 DELAY
 IMPORT
 INTERFACE
-GENERATE
+STATIC
 VOID
 FUNC
 TRUE
@@ -274,7 +274,7 @@ enumEntry
 typedefDef
 interfaceDef
 interfaceItem
-generateStmt
+staticStmt
 paramSection
 paramList
 param

@@ -1,4 +1,4 @@
-# Generated from univrc/DSL/UniVRc.g4 by ANTLR 4.13.2
+# Generated from univrc/DSL/univrc-extension/server/UniVRc.g4 by ANTLR 4.13.2
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
@@ -509,19 +509,19 @@ class UniVRcParser ( Parser ):
                      "'inout'", "'var'", "'const'", "'int'", "'float'", 
                      "'bool'", "'wire'", "'reg'", "'signed'", "'unsigned'", 
                      "'fxp'", "'stream'", "'fifo'", "'assert'", "<INVALID>", 
-                     "'import'", "'interface'", "'generate'", "'void'", 
-                     "'func'", "'true'", "'false'", "'min'", "'max'", "'abs'", 
+                     "'import'", "'interface'", "'static'", "'void'", "'func'", 
+                     "'true'", "'false'", "'min'", "'max'", "'abs'", "<INVALID>", 
                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "'<<<'", "'<<'", "'<<o'", "'>>o'", "'<<='", 
-                     "'>>='", "':<<='", "':>>='", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "':='", "'='", "'=='", "'!='", "'<='", 
-                     "'>='", "'<'", "'>'", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "'|'", "<INVALID>", "'^'", "'&'", "'~'", "<INVALID>", 
-                     "'**'", "'+'", "'-'", "'*'", "'/'", "'%'", "'?'", "':'", 
-                     "';'", "','", "'.'", "'$'", "'+:'", "'-:'", "'('", 
-                     "')'", "'{'", "'}'", "'['", "']'" ]
+                     "'<<<'", "'<<'", "'<<o'", "'>>o'", "'<<='", "'>>='", 
+                     "':<<='", "':>>='", "<INVALID>", "<INVALID>", "<INVALID>", 
+                     "':='", "'='", "'=='", "'!='", "'<='", "'>='", "'<'", 
+                     "'>'", "<INVALID>", "<INVALID>", "<INVALID>", "'|'", 
+                     "<INVALID>", "'^'", "'&'", "'~'", "<INVALID>", "'**'", 
+                     "'+'", "'-'", "'*'", "'/'", "'%'", "'?'", "':'", "';'", 
+                     "','", "'.'", "'$'", "'+:'", "'-:'", "'('", "')'", 
+                     "'{'", "'}'", "'['", "']'" ]
 
     symbolicNames = [ "<INVALID>", "BREAK", "CONTINUE", "RETURN", "IF", 
                       "ELIF", "ELSE", "SWITCH", "CASE", "DEFAULT", "FOR", 
@@ -530,7 +530,7 @@ class UniVRcParser ( Parser ):
                       "IN", "OUT", "INOUT", "VAR", "CONST", "INT", "FLOAT", 
                       "BOOL", "WIRE", "REG", "SIGNED", "UNSIGNED", "FXP", 
                       "STREAM", "FIFO", "ASSERT", "DELAY", "IMPORT", "INTERFACE", 
-                      "GENERATE", "VOID", "FUNC", "TRUE", "FALSE", "MIN", 
+                      "STATIC", "VOID", "FUNC", "TRUE", "FALSE", "MIN", 
                       "MAX", "ABS", "PRINT_KW", "POSEDGE", "NEGEDGE", "AT_MODULE", 
                       "AT_TESTBENCH", "AT_PARAM", "AT_THREAD", "AT_IMPORT", 
                       "AT_NAME", "SIZED_BIN", "SIZED_HEX", "SIZED_DEC", 
@@ -580,7 +580,7 @@ class UniVRcParser ( Parser ):
     RULE_typedefDef = 32
     RULE_interfaceDef = 33
     RULE_interfaceItem = 34
-    RULE_generateStmt = 35
+    RULE_staticStmt = 35
     RULE_paramSection = 36
     RULE_paramList = 37
     RULE_param = 38
@@ -631,16 +631,16 @@ class UniVRcParser ( Parser ):
                    "lvalue", "lvalueList", "varDecl", "assignOp", "arrayDims", 
                    "typeDesc", "structDef", "structField", "enumDef", "enumList", 
                    "enumEntry", "typedefDef", "interfaceDef", "interfaceItem", 
-                   "generateStmt", "paramSection", "paramList", "param", 
-                   "moduleDef", "moduleParams", "moduleParam", "portDir", 
-                   "funcDef", "funcParams", "funcParam", "testbenchDef", 
-                   "assertStmt", "delayStmt", "threadStmt", "ifStmt", "elifClause", 
-                   "elseClause", "switchStmt", "caseClause", "defaultClause", 
-                   "forStmt", "forConfig", "forStandardC", "forInit", "forStep", 
-                   "forIterRange", "forIterSet", "forCStyle", "whileStmt", 
-                   "doWhileStmt", "repeatStmt", "expr", "shiftOp", "primary", 
-                   "initList", "initElement", "concatExpr", "builtinCall", 
-                   "builtinName", "exprlist", "id" ]
+                   "staticStmt", "paramSection", "paramList", "param", "moduleDef", 
+                   "moduleParams", "moduleParam", "portDir", "funcDef", 
+                   "funcParams", "funcParam", "testbenchDef", "assertStmt", 
+                   "delayStmt", "threadStmt", "ifStmt", "elifClause", "elseClause", 
+                   "switchStmt", "caseClause", "defaultClause", "forStmt", 
+                   "forConfig", "forStandardC", "forInit", "forStep", "forIterRange", 
+                   "forIterSet", "forCStyle", "whileStmt", "doWhileStmt", 
+                   "repeatStmt", "expr", "shiftOp", "primary", "initList", 
+                   "initElement", "concatExpr", "builtinCall", "builtinName", 
+                   "exprlist", "id" ]
 
     EOF = Token.EOF
     BREAK=1
@@ -685,7 +685,7 @@ class UniVRcParser ( Parser ):
     DELAY=40
     IMPORT=41
     INTERFACE=42
-    GENERATE=43
+    STATIC=43
     VOID=44
     FUNC=45
     TRUE=46
@@ -865,8 +865,8 @@ class UniVRcParser ( Parser ):
             return self.getTypedRuleContext(UniVRcParser.InterfaceDefContext,0)
 
 
-        def generateStmt(self):
-            return self.getTypedRuleContext(UniVRcParser.GenerateStmtContext,0)
+        def staticStmt(self):
+            return self.getTypedRuleContext(UniVRcParser.StaticStmtContext,0)
 
 
         def moduleDef(self):
@@ -988,7 +988,7 @@ class UniVRcParser ( Parser ):
             elif la_ == 8:
                 self.enterOuterAlt(localctx, 8)
                 self.state = 171
-                self.generateStmt()
+                self.staticStmt()
                 pass
 
             elif la_ == 9:
@@ -4573,15 +4573,15 @@ class UniVRcParser ( Parser ):
         return localctx
 
 
-    class GenerateStmtContext(ParserRuleContext):
+    class StaticStmtContext(ParserRuleContext):
         __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def GENERATE(self):
-            return self.getToken(UniVRcParser.GENERATE, 0)
+        def STATIC(self):
+            return self.getToken(UniVRcParser.STATIC, 0)
 
         def ifStmt(self):
             return self.getTypedRuleContext(UniVRcParser.IfStmtContext,0)
@@ -4596,25 +4596,25 @@ class UniVRcParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return UniVRcParser.RULE_generateStmt
+            return UniVRcParser.RULE_staticStmt
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitGenerateStmt" ):
-                return visitor.visitGenerateStmt(self)
+            if hasattr( visitor, "visitStaticStmt" ):
+                return visitor.visitStaticStmt(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def generateStmt(self):
+    def staticStmt(self):
 
-        localctx = UniVRcParser.GenerateStmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 70, self.RULE_generateStmt)
+        localctx = UniVRcParser.StaticStmtContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 70, self.RULE_staticStmt)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 631
-            self.match(UniVRcParser.GENERATE)
+            self.match(UniVRcParser.STATIC)
             self.state = 635
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,57,self._ctx)
@@ -9307,8 +9307,8 @@ class UniVRcParser ( Parser ):
         def INTERFACE(self):
             return self.getToken(UniVRcParser.INTERFACE, 0)
 
-        def GENERATE(self):
-            return self.getToken(UniVRcParser.GENERATE, 0)
+        def STATIC(self):
+            return self.getToken(UniVRcParser.STATIC, 0)
 
         def VOID(self):
             return self.getToken(UniVRcParser.VOID, 0)

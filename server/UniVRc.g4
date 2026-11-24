@@ -20,7 +20,7 @@ statement
     | enumDef
     | typedefDef
     | interfaceDef
-    | generateStmt
+    | staticStmt
     | moduleDef
     | testbenchDef
     | funcDef
@@ -202,7 +202,7 @@ typedefDef
     : TYPEDEF typeDesc id arrayDims SEMI
     ;
 
-// --- Interfaces & Generates ---
+// --- Interfaces & Static Elaboration ---
 interfaceDef
     : attr* INTERFACE id (LT paramList? GT)? LBRACE interfaceItem* RBRACE SEMI?
     ;
@@ -212,8 +212,8 @@ interfaceItem
     | varDecl SEMI?
     ;
 
-generateStmt
-    : GENERATE (ifStmt | forStmt | block)
+staticStmt
+    : STATIC (ifStmt | forStmt | block)
     ;
 
 // --- Parameters & Modules ---
@@ -448,7 +448,7 @@ id
     | ABS
     | PRINT_KW
     | INTERFACE
-    | GENERATE
+    | STATIC
     | VOID
     | FUNC
     ;
@@ -499,7 +499,7 @@ ASSERT: 'assert';
 DELAY: 'delay' | 'wait_cycles';
 IMPORT: 'import';
 INTERFACE: 'interface';
-GENERATE: 'generate';
+STATIC: 'static';
 VOID: 'void';
 FUNC: 'func';
 

@@ -226,7 +226,11 @@
         },
         {
           "name": "keyword.other.declaration.univrc",
-          "match": "\\b(typedef|struct|import|enum)\\b"
+          "match": "\\b(typedef|struct|import|enum|interface)\\b"
+        },
+        {
+          "name": "storage.modifier.static.univrc",
+          "match": "\\b(static)\\b"
         },
         {
           "name": "storage.modifier.variable.univrc",

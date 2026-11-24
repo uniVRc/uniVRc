@@ -19,7 +19,7 @@ try:
         ThreadStmt, InstStmt, PortConn, PortDef, ParamDef, ModuleDef,
         FuncParamDef, FuncDef, StructField, StructDef, EnumEntry, EnumDef,
         TypedefDef, StreamType, StringLit, AssertStmt, DelayStmt, TestbenchDef,
-        InterfaceDef, InterfaceItem, GenerateStmt
+        InterfaceDef, InterfaceItem, StaticStmt, GenerateStmt
     )
 except (ImportError, ValueError):
     from antlr_gen.UniVRcVisitor import UniVRcVisitor
@@ -37,7 +37,7 @@ except (ImportError, ValueError):
         ThreadStmt, InstStmt, PortConn, PortDef, ParamDef, ModuleDef,
         FuncParamDef, FuncDef, StructField, StructDef, EnumEntry, EnumDef,
         TypedefDef, StreamType, StringLit, AssertStmt, DelayStmt, TestbenchDef,
-        InterfaceDef, InterfaceItem, GenerateStmt
+        InterfaceDef, InterfaceItem, StaticStmt, GenerateStmt
     )
 
 
@@ -443,9 +443,9 @@ class UniVRcASTVisitor(UniVRcVisitor):
         init = self.visit(ctx.expr()) if ctx.expr() else None
         return InterfaceItem(direction=pdir, type_desc=ptype, name=name, array_dims=dims, default_val=init, loc=self._loc(ctx))
 
-    def visitGenerateStmt(self, ctx: UniVRcParser.GenerateStmtContext) -> GenerateStmt:
+    def visitStaticStmt(self, ctx: UniVRcParser.StaticStmtContext) -> StaticStmt:
         body = self.visitChildren(ctx)
-        return GenerateStmt(body=body, loc=self._loc(ctx))
+        return StaticStmt(body=body, loc=self._loc(ctx))
 
     def visitFuncParams(self, ctx: UniVRcParser.FuncParamsContext) -> List[FuncParamDef]:
         return [self.visit(p) for p in ctx.funcParam()]
